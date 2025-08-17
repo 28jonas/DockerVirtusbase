@@ -1,0 +1,72 @@
+services:
+  virtusbaseweb:
+    build:
+      context: ../Virtusbase
+      dockerfile: Dockerfiles/DockerfileFrontend
+    ports:
+      - "80:80"
+    volumes:
+      - ../Virtusbase/virtusbaseweb:/app
+      - /app/node_modules
+    networks:
+      - app-network
+
+  virtusbaseapp:
+    build:
+      context: ../Virtusbase/virtusbaseapp
+    ports:
+      - "8100:8100"
+    volumes:
+      - ../Virtusbase/virtusbaseapp:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    tty: true
+    stdin_open: true
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: ../Virtusbase/
+      dockerfile: Dockerfiles/DockerfileBackend
+    volumes:
+      - ../Virtusbase/backend/virtusbasebackend:/var/www
+    ports:
+      - "9000:9000"
+    networks:
+      - app-network
+    depends_on:
+      - db
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ../Virtusbase/backend/virtusbasebackend:/var/www
+      - ../Virtusbase/Dockerfiles/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - app-network
+    depends_on:
+      - backend
+
+  db:
+    image: mysql:8
+    restart: always
+    environment:
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: jonas
+      MYSQL_PASSWORD: geheim
+      MYSQL_ROOT_PASSWORD: rootgeheim
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - app-network
+
+volumes:
+  mysql-data:
+
+networks:
+  app-network:
+    driver: bridge
