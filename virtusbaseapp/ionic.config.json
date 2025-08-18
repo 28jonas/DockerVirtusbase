@@ -1,0 +1,7 @@
+{
+  "name": "VirtusbaseApp",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue-vite"
+}
