@@ -4,7 +4,7 @@ services:
       context: ../Virtusbase
       dockerfile: Dockerfiles/DockerfileFrontend
     ports:
-      - "80:80"
+      - "3000:3000"
     volumes:
       - ../Virtusbase/virtusbaseweb:/app
       - /app/node_modules
@@ -33,7 +33,7 @@ services:
     volumes:
       - ../Virtusbase/backend/virtusbasebackend:/var/www
     expose:
-      - "9000"
+      - "9000:9000"
     networks:
       - app-network
     depends_on:
