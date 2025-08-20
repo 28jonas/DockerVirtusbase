@@ -1,6 +1,6 @@
 FROM php:8.2-fpm
 
-# Vereiste libs
+# Install dependencies
 RUN apt-get update && apt-get install -y \
     libpng-dev \
     libonig-dev \
@@ -8,13 +8,30 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     git \
-    curl \
-    libzip-dev \
-    && docker-php-ext-install pdo pdo_mysql mbstring zip exif pcntl bcmath
+    curl
 
-# Composer installeren
+# Clear cache
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install PHP extensions
+RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd
+
+# Install composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+# Set working directory
 WORKDIR /var/www
 
+# Copy existing application directory contents
+COPY backend/virtusbasebackend/ .
+
+# Install dependencies
+RUN composer install
+
+# Fix permissions
+RUN chown -R www-data:www-data /var/www
+RUN chmod -R 755 /var/www/storage
+
+# Expose port 9000 and start php-fpm server
 EXPOSE 9000
+CMD ["php-fpm"]

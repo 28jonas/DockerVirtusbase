@@ -1,0 +1,17 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Installeer Ionic CLI globaal
+RUN npm install -g @ionic/cli
+
+# Kopieer package files eerst
+COPY virtusbaseapp/package*.json ./
+RUN npm install
+
+# Kopieer de rest van de app
+COPY virtusbaseapp/ .
+
+EXPOSE 8100
+
+CMD ["ionic", "serve", "--host", "0.0.0.0", "--port", "8100"]
